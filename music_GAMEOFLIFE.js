@@ -43,13 +43,14 @@ let colBlack = [0,0,0]
 let colYellow = [213, 219, 15]
 
 //let aliveCol = [colGreen,colYellow,colBlack,colCream];
-let deadCol = colBlack
+let deadCol = colBlack;
 let current = 0;
 let addSize = 0;
 
 let appleSize = 0.5;
 
 let sceneDuration = 130; // counter ticks (60/second) each scene lasts. supports updating during playback scope.
+let maxRes = 50;
 
 // function windowResized() {
 //   resizeCanvas(windowWidth, windowHeight);
@@ -78,7 +79,11 @@ let greyColTwo = color(100,100,100)
 
 if (colourTheme == 0){
 
-  //let aliveCol = [yellowCol,greenCol,creamCol,blackCol];
+  deadCol = colBlack;
+  maxRes = 50;
+  //resolution = 20;
+  sceneDuration = 130;
+  //let al iveCol = [yellowCol,greenCol,creamCol,blackCol];
   let aliveCol = [whiteCol,greyColTwo,blackCol,greyCol];
 
     let resMap = map(other,0,100,80,10,true); //unused
@@ -90,7 +95,7 @@ if (colourTheme == 0){
     if (counter % sceneDuration == 0 && counter != 0){
       phaseCheck = true;
       resolution += 10;
-      if (resolution >= 50){
+      if (resolution >= maxRes){
         resolution = 20;
       }
       current++;
@@ -108,7 +113,7 @@ if (colourTheme == 0){
       // noStroke();
       // rect(canvasWidth/2,canvasHeight/2,canvasWidth,canvasHeight)
       // pop();
-      cols = round(canvasWidth / resolution);
+      cols = round(canvasWidth / resolution); //very important to round these to account for math error in dividing canvas
       rows = round(canvasHeight / resolution);
       grid = make2DArray(cols,rows)
       for (let i = 0; i < cols; i++){
@@ -222,6 +227,175 @@ if (colourTheme == 0){
         (vocal >= 45 && counter % 10 == 0) || 
         (bass >= 60 && counter % 10 == 0) || 
         (other >= 65 && counter % 20 == 0)) {
+    grid = next;
+    }
+
+  } else if (colourTheme == 1){
+    
+    deadCol = colBlack;
+    //resolution = 20;
+    maxRes = 50;
+    sceneDuration = 240;
+
+    let aliveCol = [yellowCol,greenCol,creamCol,blackCol];
+
+
+    let resMap = map(other,0,100,80,10,true); //unused
+    let colShift = map (drum,0,100,0,0.8,true)
+    
+    let shiftedCol = lerpColor(appleCol,aliveCol[current],colShift)
+  
+    if (counter % 240 == 0 && counter != 0){
+      phaseCheck = true;
+      resolution += 10;
+      if (resolution >= maxRes){
+        resolution = 20;
+      }
+      current++;
+      if (current >= aliveCol.length){
+      current = 0;
+    }
+    }
+  
+    if (firstRun || phaseCheck){
+      cols = round(canvasWidth / resolution);
+      rows = round(canvasHeight / resolution);
+      grid = make2DArray(cols,rows)
+      for (let i = 0; i < cols; i++){
+        for (let j = 0; j < rows; j++){
+          grid [i][j] = Math.floor(random(2));
+        }
+      }
+      firstRun = false;
+      phaseCheck = false;
+    }
+    let bassFade = map (bass, 0, 100, 100, 0, true)
+    deadCol.push(bassFade)
+    background(deadCol)
+    deadCol.pop();
+  
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        let x = i * resolution;
+        let y = j * resolution;
+        if (grid[i][j] == 1) {
+          //fill(aliveCol[current]);
+          fill(shiftedCol)
+          let appleSize = random(0,1);
+          //stroke(bass*5);
+          noStroke();
+          //strokeWeight(drum/40)
+          circle(x,y,(resolution+5)* appleSize)
+          rect(x, y, (resolution - 1)*appleSize);
+        }
+      }
+    }
+  
+    let next = make2DArray(cols, rows);
+  
+    // Compute next based on grid
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        let state = grid[i][j];
+        // Count live neighbors!
+        let sum = 0;
+        let neighbours = countNeighbours(grid, i, j);
+  
+        if (state == 0 && neighbours == 3) {
+          next[i][j] = 1;
+        } else if (state == 1 && (neighbours < 2 || neighbours > 3)) {
+          next[i][j] = 0;
+        } else {
+          next[i][j] = state;
+        }
+  
+      }
+    }
+    // iterates the GOL based on a rate that is the product of audio activity
+    if( (drum >= 40 && counter % 5 == 0) || 
+        (vocal >= 45 && counter % 10 == 0) || 
+        (bass >= 60 && counter % 20 == 0) || 
+        (other >= 65 && counter % 20 == 0)) {
+    grid = next;
+    }
+  } else if (colourTheme == 2){
+    
+    sceneDuration = 540;
+    maxRes = 40;
+    //resolution = 10;
+
+    aliveCol = [colGreen,colRed,colBlue,colWhite];
+    deadCol = [255,255,230];
+
+    let resMap = map(other,0,100,80,10);
+
+    if (counter % sceneDuration == 0 && counter != 0){
+      phaseCheck = true;
+      resolution += 10;
+      if (resolution >= maxRes){
+        resolution = 10;
+      }
+      current++;
+      if (current >= aliveCol.length){
+      current = 0;
+    }
+    }
+  
+    if (firstRun || phaseCheck){
+      cols = round(canvasWidth / resolution);
+      rows = round(canvasHeight / resolution);
+      grid = make2DArray(cols,rows)
+      for (let i = 0; i < cols; i++){
+        for (let j = 0; j < rows; j++){
+          grid [i][j] = Math.floor(random(2));
+        }
+      }
+      firstRun = false;
+      phaseCheck = false;
+    }
+    let bassFade = map (bass, 0, 100, 100, 0, true)
+    deadCol.push(bassFade)
+    background(deadCol)
+    deadCol.pop();
+  
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        let x = i * resolution;
+        let y = j * resolution;
+        if (grid[i][j] == 1) {
+          fill(aliveCol[current]);
+          stroke(bass*5);
+          strokeWeight(drum/20)
+          rect(x, y, resolution - 1, resolution - 1);
+        }
+      }
+    }
+  
+    let next = make2DArray(cols, rows);
+  
+    // Compute next based on grid
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        let state = grid[i][j];
+        // Count live neighbors!
+        let sum = 0;
+        let neighbours = countNeighbours(grid, i, j);
+  
+        if (state == 0 && neighbours == 3) {
+          next[i][j] = 1;
+        } else if (state == 1 && (neighbours < 2 || neighbours > 3)) {
+          next[i][j] = 0;
+        } else {
+          next[i][j] = state;
+        }
+  
+      }
+    }
+    // iterates the GOL based on a rate that is the product of audio activity
+    if( (drum >= 40 && counter % 5 == 0) || 
+        (vocal >= 45 && counter % 15 == 0) || 
+        (bass >= 60 && counter % 20 == 0) || 
+        (other >= 65 && counter % 25 == 0)) {
     grid = next;
     }
 

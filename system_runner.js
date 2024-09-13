@@ -95,7 +95,7 @@ function setup() {
   resMenu.option('portrait 1080 x 1920',              [1080,1920]);
   resMenu.option('portrait 1080 x 2160',              [1080,2160]);
   resMenu.option('portrait 1080 x 2280',              [1080,2280]);
-  resMenu.option('portrait 3040 x 1440 (UNSTABLE)',   [3040,1440]);
+  resMenu.option('portrait 1440 x 3040 (UNSTABLE)',   [1440,3040]);
   resMenu.option('instagram 1080 x 1350',             [1080,1350]);
   resMenu.option('instagram 1440 x 1800',             [1440,1800]);
   resMenu.option('square 360 x 360',                  [360,360]);

@@ -1,5 +1,7 @@
-const canvasWidth = 1920;
-const canvasHeight = 1080;
+
+var canvasWidth = 1920;
+var canvasHeight = 1080;
+var canvasSize = [canvasWidth,canvasHeight];
 
 
 let mainCanvas;
@@ -15,6 +17,8 @@ let songIsPlaying = false;
 let songEpoch = 0;              // millis when song starts
 let table;
 let words;
+
+
 
 
 function songLoadedError() {
@@ -51,7 +55,7 @@ let volumes = [];
 let volume_length = 0;
 
 function setup() {
-  main_canvas = createCanvas(canvasWidth, canvasHeight);
+  main_canvas = createCanvas(canvasSize[0], canvasSize[1]);
   main_canvas.parent('canvasContainer');
   song = loadSound('song.mp3', songLoaded, songLoadedError, songLoadedSoFar);  
   
@@ -59,8 +63,8 @@ function setup() {
   angleMode(DEGREES);
 
   // create text inputs
-  textInput = createInput('words...');
-  textInput.parent('wordsContainer');
+  // textInput = createInput('words...');
+  // textInput.parent('wordsContainer');
 
   // create sliders
   slider1 = createSlider(0, 100, 50);
@@ -77,6 +81,42 @@ function setup() {
   songButton.mousePressed(switchRunMode);
   songButton.parent('button1Container');
   songButton.elt.disabled = true;
+
+  resMenu = createSelect('resolution..');
+  resMenu.parent('button1Container')
+  resMenu.option('landscape 800 x 600',               [800,600]);
+  resMenu.option('landscape 1280 x 720',              [1280,720]);
+  resMenu.option('landscape 1366 x 768',              [1366,768]);
+  resMenu.option('landscape 1920 x 1080',             [1920,1080]);
+  resMenu.option('landscape 2560 x 1440',             [2560,1440]);
+  resMenu.option('landscape 3840 x 2160 (UNSTABLE)',  [3840,2160]);
+  resMenu.option('portrait 600 x 800',                [600,800]);
+  resMenu.option('portrait 720 x 1280',               [720,1280]);
+  resMenu.option('portrait 1080 x 1920',              [1080,1920]);
+  resMenu.option('portrait 1080 x 2160',              [1080,2160]);
+  resMenu.option('portrait 1080 x 2280',              [1080,2280]);
+  resMenu.option('portrait 3040 x 1440 (UNSTABLE)',   [3040,1440]);
+  resMenu.option('instagram 1080 x 1350',             [1080,1350]);
+  resMenu.option('instagram 1440 x 1800',             [1440,1800]);
+  resMenu.option('square 360 x 360',                  [360,360]);
+  resMenu.option('square 720 x 720',                  [720,720]);
+  resMenu.option('square 1080 x 1080',                [1080,1080]);
+  resMenu.option('square 1440 x 1440',                [1440,1440]);
+  resMenu.option('square 2160 x 2160 (UNSTABLE)',     [2160,2160]);
+  resMenu.selected('landscape 1920 x 1080')
+
+  resButton = createButton ('refresh')
+  resButton.parent('button1Container');
+  resButton.mousePressed(refreshCanvas)
+
+  styleSelect = createSelect('style');
+  styleSelect.parent('button2Container');
+  styleSelect.option('PATHS live',    0);
+  styleSelect.option('A.G. made it',  1);
+  styleSelect.option('Teen Dream',    2);
+  styleSelect.selected('PATHS live'    );
+
+
 
   vol1 = [];
   vol2 = [];
@@ -116,7 +156,7 @@ function switchRunMode() {
       alert("Cannot switch mode, there was a problem loading the audio")
       return;
     }
-    textInput.elt.disabled = true;
+    // textInput.elt.disabled = true;
     slider1.elt.disabled = true;
     slider2.elt.disabled = true;
     slider3.elt.disabled = true;
@@ -132,7 +172,7 @@ function switchRunMode() {
       song.stop();
       songIsPlaying = false;
     }
-    textInput.elt.disabled = false;
+    // textInput.elt.disabled = false;
     slider1.elt.disabled = false;
     slider2.elt.disabled = false;
     slider3.elt.disabled = false;
@@ -144,14 +184,19 @@ function switchRunMode() {
 }
 
 function draw() {
+
+  canvasSize = resMenu.selected();
+
+
+
   if (editorMode) {
-    let w = textInput.value();
+    //let w = textInput.value();
     let s1 = slider1.value();
     let s2 = slider2.value();
     let s3 = slider3.value();
     let s4 = slider4.value();
 
-    draw_one_frame(w, s1, s2, s3, s4, 0);
+    draw_one_frame(s1, s2, s3, s4, 0);
   }
   else {
     if(songEpoch > 0) {
@@ -199,7 +244,7 @@ function draw() {
         if (curSlice < words.length) {
           cur_words = words[curSlice];
         }
-        textInput.value(cur_words);
+        // textInput.value(cur_words);
         slider1.value(roww[0]);
         slider2.value(roww[1]);
         slider3.value(roww[2]);

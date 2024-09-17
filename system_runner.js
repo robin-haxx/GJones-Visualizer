@@ -1,4 +1,4 @@
-
+// another one of those snippets I figured is less computationally expensive to just run wherever it's safe to
 function setupVolumes(){
   vol1 = [];
   vol2 = [];
@@ -15,14 +15,9 @@ function setupVolumes(){
   }
 }
 
-
-
-
-
 var canvasWidth = 1920;
 var canvasHeight = 1080;
 var canvasSize = [canvasWidth,canvasHeight];
-
 
 let mainCanvas;
 let songCount = 15 // UPDATE THIS AND THIS ONLY AS YOU ADD MORE SONGS. 
@@ -42,13 +37,6 @@ let words;
 let songs = [];   // stores all loaded song .mp3s
 let tables = [];  // stores volumes for all songs
 
-
-// function reloadMusic(){
-//   song = loadSound(`song_${songID}.mp3`, songLoaded, songLoadedError, songLoadedSoFar); 
-// }
-
-
-//for 10 seconds, stall it..
 
 // function songLoadedError() {
 //   songButton.elt.innerHTML = "Song: Load Error";
@@ -83,17 +71,15 @@ function preload() {
 
   for (let i = 0; i < songCount; i++){
     console.log("loading song " + i);
-    songs.push(loadSound(`song_${i}.mp3`));
-    tables.push(loadTable(`volumes_${i}.csv`, 'csv'));
+    songs.push(loadSound(`sound_assets/song_${i}.mp3`));
+    tables.push(loadTable(`sound_assets/volumes_${i}.csv`, 'csv'));
     
   }
   console.log("preloadID:" + songID);
   table = tables [songID];
   song = songs[songID];  
-
   
-  
-  words = loadStrings('words.txt');
+  words = loadStrings('words.txt'); //anything containing "words" is deprecated, just empty variables, will remove when I can be bothered
 }
 
 let volumes = [];
@@ -102,22 +88,9 @@ let volume_length = 0;
 function setup() {
   main_canvas = createCanvas(canvasSize[0], canvasSize[1]);
   main_canvas.parent('canvasContainer');
-
-  for (let i = 0; i < songCount; i++){
-  
-  }
-  //any reason this is in setup and not preload? let's find out!
-
-  
-
-  
   
   frameRate(60);
   angleMode(DEGREES);
-
-  // create text inputs
-  // textInput = createInput('words...');
-  // textInput.parent('wordsContainer');
 
   // create sliders
   slider1 = createSlider(0, 100, 50);
@@ -189,7 +162,7 @@ function setup() {
   songSelect.option('GLADoS - Want You Gone',                     14);
   //songSelect.selected(0);
 
-setupVolumes();
+  setupVolumes();
 
   /*
   for(let i=0; i<4; i++) {
@@ -216,6 +189,7 @@ function switchRunMode() {
   song = songs[songID];
   
   if(editorMode) {
+    // deprecated code retained in case I want to build back in load status for multiple songs...
     // if(songLoadStatus == "loading") {
     //   alert("Song still loading...");
     //   return;

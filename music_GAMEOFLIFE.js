@@ -1,3 +1,4 @@
+// reserves space for screen size changes, fully regens cells when phaseShift is triggered
 function refreshCanvas() {
   clear();
   canvasSize = [];
@@ -15,6 +16,7 @@ function refreshCanvas() {
    
 }
 
+// quick value display for music data, sans advanced timing tools
 function debugInfo(){
   push();
   fill(255)
@@ -41,8 +43,9 @@ let cellsY;
 let grid;
 let cols;
 let rows;
-let resolution = 20;
+let resolution = 20; //are default res values necessary anymore? could give some options to user tbh
 
+// need to refactor colour storage if I build a full style tool suite. Should be fun.
 let colGreen = [80, 150, 90];
 let colBlue = [50, 50, 100];
 let colRed = [80, 50, 20];
@@ -84,6 +87,7 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
   let greyCol = color(150, 150, 150);
   let greyColTwo = color(100, 100, 100);
 
+  // next steps: move as much out of these statements as possible to preserve individual changes, start building other themes
   if (colourTheme == 0) {
     deadCol = colBlack;
     maxRes = 50;
@@ -416,6 +420,7 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
   //debugInfo();
 }
 
+// constructor for cell array (current and next)
 function make2DArray(cols, rows) {
   let arr = new Array(cols);
   for (let i = 0; i < arr.length; i++) {
@@ -424,6 +429,7 @@ function make2DArray(cols, rows) {
   return arr;
 }
 
+// check how many current "active/alive" neighbours a cell has, return int sum to decide how it advances in next
 function countNeighbours(grid, x, y) {
   let sum = 0;
   for (let i = -1; i < 2; i++) {

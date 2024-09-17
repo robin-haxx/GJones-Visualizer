@@ -1,53 +1,98 @@
 
+function setupVolumes(){
+  vol1 = [];
+  vol2 = [];
+  vol3 = [];
+  vol4 = [];
+  volumes = [vol1, vol2, vol3, vol4];
+  volume_table_length = table.getRowCount();
+  for(let i=0; i< volume_table_length;i++) {
+    let roww = table["rows"][i].arr;
+    vol1.push(float(roww[1]));
+    vol2.push(float(roww[2]));
+    vol3.push(float(roww[3]));
+    vol4.push(float(roww[4]));
+  }
+}
+
+
+
+
+
 var canvasWidth = 1920;
 var canvasHeight = 1080;
 var canvasSize = [canvasWidth,canvasHeight];
 
 
 let mainCanvas;
-
+let songCount = 15 // UPDATE THIS AND THIS ONLY AS YOU ADD MORE SONGS. 
 let textInput;
 let slider1, slider2, slider3, slider4;
 let songButton;
 
 let editorMode = true;          // false when in song mode
-let songLoadStatus = "loading"; // "error", "loaded"
+//let songLoadStatus = "loading"; // "error", "loaded"
 let song;
 let songIsPlaying = false;
-let songEpoch = 0;              // millis when song starts
+let songEpoch = 0;   // millis when song starts
+let songID = 0;      // ID to fetch song files
 let table;
 let words;
 
+let songs = [];   // stores all loaded song .mp3s
+let tables = [];  // stores volumes for all songs
 
 
+// function reloadMusic(){
+//   song = loadSound(`song_${songID}.mp3`, songLoaded, songLoadedError, songLoadedSoFar); 
+// }
 
-function songLoadedError() {
-  songButton.elt.innerHTML = "Song: Load Error";
-  print(songButton.elt.innerHTML);
-  songLoadStatus = "error";
-}
 
-function songLoaded() {
-  print("Song loaded");
-  songLoadStatus = "loaded";
-  songButton.elt.innerHTML = "run song";
-  songButton.elt.disabled = false;
-  //  let now = millis();
-  //  songEpoch = now + 5000;
-  if(debugFastRefresh && getAudioContext().state != "suspended"){
+//for 10 seconds, stall it..
 
-    switchRunMode()
-  }
-}
+// function songLoadedError() {
+//   songButton.elt.innerHTML = "Song: Load Error";
+//   print(songButton.elt.innerHTML);
+//   songLoadStatus = "error";
+// }
 
-function songLoadedSoFar(soFar) {
-  let loaded = int(100 * soFar);
-  songButton.elt.innerHTML = "Song: " + loaded + "% loaded";
-  print(songButton.elt.innerHTML);
-}
+// function songLoaded() {
+//   print("Song loaded");
+//   songLoadStatus = "loaded";
+//   songButton.elt.innerHTML = "run song";
+//   songButton.elt.disabled = false;
+//   //  let now = millis();
+//   //  songEpoch = now + 5000;
+//   if(debugFastRefresh && getAudioContext().state != "suspended"){
+
+//     switchRunMode();
+//   }
+//}
+
+// function songLoadedSoFar(soFar) {
+//   let loaded = int(100 * soFar);
+//   songButton.elt.innerHTML = "Song: " + loaded + "% loaded";
+//   print(songButton.elt.innerHTML);
+// }
+
+
+//  use songID to set current
+//  make loop scalable later
 
 function preload() {
-  table = loadTable('volumes.csv', 'csv');
+
+  for (let i = 0; i < songCount; i++){
+    console.log("loading song " + i);
+    songs.push(loadSound(`song_${i}.mp3`));
+    tables.push(loadTable(`volumes_${i}.csv`, 'csv'));
+    
+  }
+  console.log("preloadID:" + songID);
+  table = tables [songID];
+  song = songs[songID];  
+
+  
+  
   words = loadStrings('words.txt');
 }
 
@@ -57,7 +102,15 @@ let volume_length = 0;
 function setup() {
   main_canvas = createCanvas(canvasSize[0], canvasSize[1]);
   main_canvas.parent('canvasContainer');
-  song = loadSound('song.mp3', songLoaded, songLoadedError, songLoadedSoFar);  
+
+  for (let i = 0; i < songCount; i++){
+  
+  }
+  //any reason this is in setup and not preload? let's find out!
+
+  
+
+  
   
   frameRate(60);
   angleMode(DEGREES);
@@ -77,10 +130,10 @@ function setup() {
   slider3.parent('slider3Container');
   slider4.parent('slider4Container');
 
-  songButton = createButton('(music loading)');
+  songButton = createButton('let\'s go!');
   songButton.mousePressed(switchRunMode);
   songButton.parent('button1Container');
-  songButton.elt.disabled = true;
+  songButton.elt.disabled = false;
 
   resMenu = createSelect('resolution..');
   resMenu.parent('button1Container')
@@ -103,11 +156,12 @@ function setup() {
   resMenu.option('square 1080 x 1080',                [1080,1080]);
   resMenu.option('square 1440 x 1440',                [1440,1440]);
   resMenu.option('square 2160 x 2160 (UNSTABLE)',     [2160,2160]);
-  resMenu.selected('landscape 1920 x 1080')
+  //resMenu.selected('landscape 1920 x 1080')
 
   resButton = createButton ('refresh')
   resButton.parent('button1Container');
-  resButton.mousePressed(refreshCanvas)
+  resButton.mousePressed(refreshCanvas);
+  
 
   styleSelect = createSelect('style');
   styleSelect.parent('button2Container');
@@ -116,21 +170,27 @@ function setup() {
   styleSelect.option('Teen Dream',    2);
   styleSelect.selected('PATHS live'    );
 
+  songSelect = createSelect('song');
+  songSelect.parent('button2Container');
+  songSelect.option('Dancing on the Edge - G Jones',              0);//track id # switches out file name
+  songSelect.option('Apple - Charli Xcx',                         1);
+  songSelect.option('Myth (Beach House) - The Casket Lottery',    2);
+  songSelect.option('Beach House - Lazuli',                       3);
+  songSelect.option('ODESZA - Kusanagi',                          4);
+  songSelect.option('ODESZA & Naomi Wild - Higher Ground',        5);
+  songSelect.option('ODESZA - Sun Models',                        6);
+  songSelect.option('Beird...',                                   7);
+  songSelect.option('Gorillaz - Feel Good Inc.',                  8);
+  songSelect.option('CHVRCHES - Gun',                             9);
+  songSelect.option('Tame Impala - Nangs',                        10);
+  songSelect.option('Fever Ray - Keep The Streets Empty For Me',  11);
+  songSelect.option('Porter Robinson - Hollowheart',              12);
+  songSelect.option('Porter Robinson - Goodbye to a World',       13);
+  songSelect.option('GLADoS - Want You Gone',                     14);
+  //songSelect.selected(0);
 
+setupVolumes();
 
-  vol1 = [];
-  vol2 = [];
-  vol3 = [];
-  vol4 = [];
-  volumes = [vol1, vol2, vol3, vol4];
-  volume_table_length = table.getRowCount();
-  for(let i=0; i< volume_table_length;i++) {
-    let roww = table["rows"][i].arr;
-    vol1.push(float(roww[1]));
-    vol2.push(float(roww[2]));
-    vol3.push(float(roww[3]));
-    vol4.push(float(roww[4]));
-  }
   /*
   for(let i=0; i<4; i++) {
     let radius = map(i, 0, 3, 0, 3);
@@ -147,15 +207,23 @@ function setup() {
 }
 
 function switchRunMode() {
+  songID = songSelect.selected()//cheeky get ahead of user reload
+  song.stop();
+  songIsPlaying = false;
+  setupVolumes();
+
+  table = tables[songID];
+  song = songs[songID];
+  
   if(editorMode) {
-    if(songLoadStatus == "loading") {
-      alert("Song still loading...");
-      return;
-    }
-    else if (songLoadStatus == "error") {
-      alert("Cannot switch mode, there was a problem loading the audio")
-      return;
-    }
+    // if(songLoadStatus == "loading") {
+    //   alert("Song still loading...");
+    //   return;
+    // }
+    // else if (songLoadStatus == "error") {
+    //   alert("Cannot switch mode, there was a problem loading the audio")
+    //   return;
+    // }
     // textInput.elt.disabled = true;
     slider1.elt.disabled = true;
     slider2.elt.disabled = true;
@@ -171,6 +239,7 @@ function switchRunMode() {
     if(songIsPlaying) {
       song.stop();
       songIsPlaying = false;
+
     }
     // textInput.elt.disabled = false;
     slider1.elt.disabled = false;
@@ -179,14 +248,28 @@ function switchRunMode() {
     slider4.elt.disabled = false;
 
     editorMode = true;
+//think this is causing a weird reload lag. could relegate fix to manual refresh on song change for now
+      song = songs  [songID];
+      table = tables [songID];
+
     songButton.elt.innerHTML = "start music";
   }
 }
 
 function draw() {
 
-  canvasSize = resMenu.selected();
+  if (songSelect.selected() != songID){
+    song.stop();
+    songIsPlaying = false;
+    
+    switchRunMode();
+    song.stop();
+    songIsPlaying = false;
+    table = tables [songID];
+  }
 
+  canvasSize = resMenu.selected();
+  songID = songSelect.selected();
 
 
   if (editorMode) {

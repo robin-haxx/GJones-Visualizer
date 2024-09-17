@@ -12,6 +12,18 @@ function refreshCanvas() {
   canvasHeight = canvasSize[1];
   console.log(canvasSize[0], canvasSize[1]);
   resizeCanvas(canvasSize[0], canvasSize[1]);
+   
+}
+
+function debugInfo(){
+  push();
+  fill(255)
+  text ("counter: "+ counter, 100, 100);
+  text ("vocal: "+ vocal, 100, 200);
+  text ("drum: "+ drum, 100, 300);
+  text ("bass: "+ bass, 100, 400);
+  text ("other: "+ other, 100, 500);
+  pop();
 }
 
 let colourTheme = 0;
@@ -401,6 +413,7 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
   } else {
     console.log(`invalid style option: ${colourTheme}`);
   }
+  //debugInfo();
 }
 
 function make2DArray(cols, rows) {
